@@ -1,4 +1,4 @@
-const updated = '4 Oktober 2026'
+const updated = '7 Oktober 2026'
 export const docs = {
   syarat: {
     title: 'Syarat & Ketentuan', updated,
@@ -41,10 +41,11 @@ export const docs = {
         'Saat memesan:',
         ['nama, nomor WhatsApp dan/atau Gmail, kota, dan umur', 'paket dan kebutuhan yang dipilih, serta catatan jika kamu mengisinya'],
         'Jika umur di bawah 17 tahun: nama dan kontak orang tua atau wali, beserta persetujuannya.',
+        'Jika kamu berlangganan kabar: alamat email dan waktu pendaftaran.',
         'Pilihan tema terang atau gelap disimpan di browser kamu dan tidak dikirim ke server kami.',
       ]],
       ['3. Untuk apa data dipakai', [
-        ['memproses pesanan dan menghubungimu', 'memverifikasi orang tua atau wali untuk pemesan di bawah 17 tahun', 'menampilkan status pesanan saat kamu mengecek dengan ID pesanan', 'menghitung harga dan promo'],
+        ['memproses pesanan dan menghubungimu', 'memverifikasi orang tua atau wali untuk pemesan di bawah 17 tahun', 'menampilkan status pesanan saat kamu mengecek dengan ID pesanan', 'menghitung harga dan promo', 'mengirim pengumuman, voucher, dan promo lewat email jika kamu berlangganan'],
         'Kami tidak menjual datamu dan tidak memakainya untuk iklan.',
       ]],
       ['4. Data pemesan di bawah 17 tahun', ['Karena data anak perlu perlindungan khusus, kami meminta persetujuan orang tua atau wali dan menghubungi mereka sebelum pesanan diproses. Orang tua atau wali dapat meminta data anak dihapus kapan saja.']],
@@ -56,7 +57,8 @@ export const docs = {
       ['6. Berbagi data', ['Kami tidak membagikan datamu kepada pihak lain, kecuali penyedia infrastruktur (hosting dan basis data) sebatas yang diperlukan untuk menjalankan layanan, atau jika diwajibkan hukum.']],
       ['7. Berapa lama data disimpan', ['Data disimpan selama diperlukan untuk memproses dan mencatat pesanan. Kamu dapat meminta penghapusan datamu kapan saja.']],
       ['8. Hakmu', ['Sesuai Undang-Undang Pelindungan Data Pribadi (UU No. 27 Tahun 2022), kamu berhak meminta akses, perbaikan, dan penghapusan datamu, serta menarik persetujuan. Sampaikan permintaanmu lewat tombol Mulai Konsultasi di website.']],
-      ['9. Perubahan kebijakan', ['Kebijakan ini dapat diperbarui. Versi terbaru selalu ada di halaman ini beserta tanggal pembaruannya.']],
+      ['9. Langganan email', ['Berlangganan bersifat sukarela dan memerlukan persetujuanmu. Berlangganan untuk usia 17 tahun ke atas, atau dengan izin orang tua atau wali.', 'Kamu bisa berhenti kapan saja dan meminta alamat emailmu dihapus. Alamat email pelanggan disimpan di basis data yang sama dan hanya dibaca admin.']],
+      ['10. Perubahan kebijakan', ['Kebijakan ini dapat diperbarui. Versi terbaru selalu ada di halaman ini beserta tanggal pembaruannya.']],
     ],
   },
 }

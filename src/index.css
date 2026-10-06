@@ -162,3 +162,7 @@ html[data-motion='reduce'] *, html[data-motion='reduce'] *::before, html[data-mo
   transition-duration: .01ms !important; animation-duration: .01ms !important; animation-delay: 0ms !important; scroll-behavior: auto !important;
 }
 html[data-motion='reduce'] .reveal { opacity: 1; transform: none; }
+
+body { min-height: 100dvh; }
+html[data-contrast='high'] { --muted: 45 55 72; --line: 150 140 125; }
+html[data-theme='dark'][data-contrast='high'] { --muted: 205 212 224; --line: 100 116 140; }

@@ -7,6 +7,13 @@ let s = { items: [], read: loadRead(), banner: null, sheet: null }
 const subs = new Set()
 const set = (p) => { s = { ...s, ...p }; subs.forEach((f) => f()) }
 const seen = new Set()
+const notified = new Set()
+async function pushLocal(i) {
+  try {
+    const reg = await navigator.serviceWorker?.ready
+    await reg?.showNotification(i.title, { body: i.body, icon: '/icon-192.png', badge: '/icon-192.png', tag: i.id })
+  } catch (e) {}
+}
 let timer, started = false
 export const unreadOf = (st) => st.items.filter((i) => !st.read.includes(i.id))
 function showBanner(item) {
@@ -18,6 +25,11 @@ async function load() {
   const { data } = await supabase.from('broadcasts').select('*').order('created_at', { ascending: false }).limit(20)
   if (!data) return
   set({ items: data })
+  for (const i of unreadOf(s)) {
+    if (notified.has(i.id)) continue
+    notified.add(i.id)
+    if (document.visibilityState === 'hidden' && getPrefs().notify && 'Notification' in window && Notification.permission === 'granted') pushLocal(i)
+  }
   const next = unreadOf(s).find((i) => !seen.has(i.id))
   if (next && !s.sheet) showBanner(next)
 }
@@ -25,7 +37,7 @@ export function startBroadcasts() {
   if (started || !supabase) return
   started = true
   setTimeout(load, 1200)
-  setInterval(() => document.visibilityState === 'visible' && load(), 45000)
+  setInterval(() => (document.visibilityState === 'visible' || getPrefs().notify) && load(), 45000)
 }
 export function openCenter() {
   clearTimeout(timer)

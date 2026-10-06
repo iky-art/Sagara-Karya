@@ -4,14 +4,17 @@ import Splash from '../components/Splash.jsx'
 import NotificationLayer from '../components/NotificationLayer.jsx'
 import ContactChooser from '../components/ContactChooser.jsx'
 import { openCenter, unreadOf, useBroadcasts } from '../lib/broadcast.js'
-import { buzz } from '../lib/prefs.js'
-import { Cara, Faq, Home, I, Ico, Lacak, Paket, Profil, Setelan, Voucher, VoucherKu } from './screens.jsx'
+import { buzz, usePrefs } from '../lib/prefs.js'
+import { enterFull, setWake } from '../lib/device.js'
+import { isStandalone } from '../lib/pwa.js'
+import { Cara, Faq, Home, I, Ico, InfoApp, Lacak, Langganan, Paket, Profil, Setelan, Voucher, VoucherKu } from './screens.jsx'
 const TABS = [['home', 'Beranda', I.home], ['paket', 'Paket', I.box], ['voucher', 'Voucher', I.ticket], ['setelan', 'Setelan', I.sliders]]
 const TITLE = { home: 'Sagara Karya', paket: 'Paket', voucher: 'Voucher', setelan: 'Setelan' }
-const SUBS = { lacak: 'Lacak Pesanan', profil: 'Profil Saya', voucherku: 'Voucher Saya', faq: 'Pertanyaan Umum', cara: 'Cara Kerja' }
+const SUBS = { lacak: 'Lacak Pesanan', profil: 'Profil Saya', voucherku: 'Voucher Saya', faq: 'Pertanyaan Umum', cara: 'Cara Kerja', info: 'Info Aplikasi', langganan: 'Kabar Email' }
 export default function AppShell() {
   const q = new URLSearchParams(location.search)
-  const [tab, setTab] = useState(TABS.some((t) => t[0] === q.get('tab')) ? q.get('tab') : 'home')
+  const pr = usePrefs()
+  const [tab, setTab] = useState(TABS.some((t) => t[0] === q.get('tab')) ? q.get('tab') : pr.start)
   const [sub, setSub] = useState(q.get('lacak') ? 'lacak' : null)
   const [online, setOnline] = useState(navigator.onLine)
   const nb = useBroadcasts(), unread = unreadOf(nb).length
@@ -21,11 +24,18 @@ export default function AppShell() {
     return () => { window.removeEventListener('popstate', pop); window.removeEventListener('online', on); window.removeEventListener('offline', off) }
   }, [])
   useEffect(() => { window.scrollTo(0, 0) }, [tab, sub])
+  useEffect(() => { setWake(pr.wake) }, [pr.wake])
+  useEffect(() => {
+    if (!pr.fullscreen || !isStandalone()) return
+    const go = () => { if (!document.fullscreenElement) enterFull() }
+    window.addEventListener('pointerup', go, { once: true })
+    return () => window.removeEventListener('pointerup', go)
+  }, [pr.fullscreen])
   const openSub = (k) => { buzz(); history.pushState({ sub: 1 }, ''); setSub(k) }
   const back = () => (history.state?.sub ? history.back() : setSub(null))
   const go = (k) => { buzz(); setSub(null); setTab(k) }
   const shown = sub ? SUBS[sub] : TITLE[tab]
-  const subView = { lacak: <Lacak />, profil: <Profil />, voucherku: <VoucherKu />, faq: <Faq />, cara: <Cara /> }[sub]
+  const subView = { lacak: <Lacak />, profil: <Profil />, voucherku: <VoucherKu />, faq: <Faq />, cara: <Cara />, info: <InfoApp />, langganan: <Langganan /> }[sub]
   return (
     <>
       <Splash />

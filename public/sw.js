@@ -1,4 +1,4 @@
-const V = 'sk-v1'
+const V = 'sk-v2'
 const SHELL = ['/', '/index.html', '/manifest.webmanifest', '/logo.png', '/logo-light.png']
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(V).then((c) => c.addAll(SHELL)).then(() => self.skipWaiting()))
@@ -22,4 +22,8 @@ self.addEventListener('fetch', (e) => {
     const net = fetch(req).then((r) => { if (r.ok) { const c = r.clone(); caches.open(V).then((x) => x.put(req, c)) } return r }).catch(() => hit)
     return hit || net
   }))
+})
+self.addEventListener('notificationclick', (e) => {
+  e.notification.close()
+  e.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((cs) => (cs[0] ? cs[0].focus() : self.clients.openWindow('/app'))))
 })

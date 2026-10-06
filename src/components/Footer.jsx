@@ -1,4 +1,5 @@
-import { nav } from '../data.js'
+import { nav, socials } from '../data.js'
+import SocialIcon from './SocialIcon.jsx'
 import Logo from './Logo.jsx'
 import { install, useInstall } from '../lib/pwa.js'
 export default function Footer() {
@@ -14,6 +15,14 @@ export default function Footer() {
         <nav aria-label="Footer" className="flex flex-wrap gap-x-6 gap-y-2">
           {nav.map(([l, h]) => <a key={h} href={base + h} className="text-muted hover:text-ink">{l}</a>)}
         </nav>
+      </div>
+      <div className="wrap mt-8">
+        <p className="text-sm font-semibold">Ikuti akun resmi kami</p>
+        <div className="mt-3 flex flex-wrap gap-3">
+          {socials.map((s) => (
+            <a key={s.id} href={s.href} target="_blank" rel="noopener noreferrer" aria-label={`${s.label} ${s.handle}`} className="glass inline-flex items-center gap-2.5 rounded-full py-2.5 pl-3.5 pr-4 text-sm font-semibold"><SocialIcon id={s.id} />{s.handle}</a>
+          ))}
+        </div>
       </div>
       <div className="wrap mt-10 flex flex-col gap-3 text-sm text-muted sm:flex-row sm:items-center sm:justify-between">
         <p>© 2026 Sagara Karya. All rights reserved.</p>

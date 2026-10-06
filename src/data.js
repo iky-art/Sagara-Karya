@@ -1,6 +1,6 @@
 // Kontak: isi salah satu atau keduanya. Kosong semua = tombol Konsultasi menuju bagian CTA.
 export const CONTACT_WA = '' // nomor WhatsApp, mis. 081234567890
-export const CONTACT_EMAIL = 'sagarakaryastudio@gmail.com' // mis. namakamu@gmail.com
+export const CONTACT_EMAIL = '' // mis. namakamu@gmail.com
 const waNum = CONTACT_WA.replace(/\D/g, '').replace(/^0/, '62')
 export const channels = [
   ...(waNum ? [{ id: 'wa', label: 'WhatsApp', href: `https://wa.me/${waNum}?text=${encodeURIComponent('Halo Sagara Karya, saya ingin berkonsultasi.')}` }] : []),
@@ -39,4 +39,9 @@ export const faqs = [
   ['Bagaimana cara memulai?', 'Klik Mulai Konsultasi lalu ceritakan kebutuhanmu. Dari situ kita tentukan paket dan konsep yang paling pas.'],
   ['Apakah harga bisa berubah?', 'Harga di halaman ini adalah acuan tiap paket. Jika kebutuhanmu di luar isi paket, kita bicarakan dan sepakati dulu sebelum pengerjaan dimulai.'],
   ['Apakah bisa membantu domain dan deployment?', 'Bisa dibicarakan saat konsultasi. Detail dan biayanya bergantung pada kebutuhan, dan tidak otomatis termasuk dalam paket.'],
+]
+
+export const socials = [
+  { id: 'ig', label: 'Instagram', handle: '@sagarakaryastudio', href: 'https://www.instagram.com/sagarakaryastudio' },
+  { id: 'tt', label: 'TikTok', handle: '@sagarakaryastudio', href: 'https://www.tiktok.com/@sagarakaryastudio' },
 ]

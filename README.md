@@ -1,6 +1,7 @@
 # Sagara Karya
 1. `cp .env.example .env` lalu isi 3 nilainya.
 2. Supabase: jalankan `supabase/schema.sql` di SQL Editor; buat 1 user admin di Authentication > Users; matikan "Allow new users to sign up".
+2c. Jalankan `supabase/update-subscribers.sql` (langganan email).
 2b. Jalankan juga `supabase/update-promo-cek.sql` (promo + cek pesanan), lalu `supabase/update-voucher-broadcast.sql` (voucher + broadcast).
 3. `npm install && npm run dev`. Admin: `/<VITE_ADMIN_UUID>/admin`.
 4. Deploy (Cloudflare Pages): set 3 env var yang sama. `public/_redirects` sudah ada.

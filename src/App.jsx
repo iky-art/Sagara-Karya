@@ -9,6 +9,7 @@ import Vouchers from './sections/Vouchers.jsx'
 import NotificationLayer from './components/NotificationLayer.jsx'
 import InstallCard from './components/InstallCard.jsx'
 import ContactChooser from './components/ContactChooser.jsx'
+import Subscribe from './sections/Subscribe.jsx'
 import Why from './sections/Why.jsx'
 import Process from './sections/Process.jsx'
 import About from './sections/About.jsx'
@@ -21,7 +22,7 @@ export default function App() {
       <Splash />
       <Navbar />
       <main>
-        <Hero /><Services /><Packages /><Vouchers /><CekPesanan /><Why /><Process /><About /><FAQ /><CTA />
+        <Hero /><Services /><Packages /><Vouchers /><CekPesanan /><Why /><Process /><About /><FAQ /><Subscribe /><CTA />
       </main>
       <Footer />
       <NotificationLayer />
