@@ -1,0 +1,69 @@
+name: Build Android APK
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths-ignore: ['**.md']
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+      VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+      VITE_ADMIN_UUID: ${{ secrets.VITE_ADMIN_UUID }}
+      KEYSTORE_B64: ${{ secrets.KEYSTORE_BASE64 }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: 17 }
+      - run: npm install
+      - run: npm install @capacitor/core@6 @capacitor/cli@6 @capacitor/android@6
+      - run: npm run build
+      - run: npx cap add android
+      - run: npx @capacitor/assets generate --android
+      - name: Versi aplikasi dan warna status bar
+        run: |
+          sed -i "s/versionCode 1/versionCode ${{ github.run_number }}/; s/versionName \"1.0\"/versionName \"1.0.${{ github.run_number }}\"/" android/app/build.gradle
+          sed -i 's/#303F9F/#0D1421/' android/app/src/main/res/values/colors.xml || true
+      - run: npx cap sync android
+      - name: Build APK debug (langsung bisa dipasang)
+        working-directory: android
+        run: ./gradlew assembleDebug
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sagara-karya-debug-apk
+          path: android/app/build/outputs/apk/debug/*.apk
+      - name: Build release (APK dan AAB)
+        if: env.KEYSTORE_B64 != ''
+        working-directory: android
+        run: ./gradlew assembleRelease bundleRelease
+      - name: Tanda tangani APK
+        if: env.KEYSTORE_B64 != ''
+        uses: r0adkll/sign-android-release@v1
+        env: { BUILD_TOOLS_VERSION: "34.0.0" }
+        with:
+          releaseDirectory: android/app/build/outputs/apk/release
+          signingKeyBase64: ${{ secrets.KEYSTORE_BASE64 }}
+          alias: ${{ secrets.KEY_ALIAS }}
+          keyStorePassword: ${{ secrets.KEYSTORE_PASSWORD }}
+          keyPassword: ${{ secrets.KEY_PASSWORD }}
+      - name: Tanda tangani AAB
+        if: env.KEYSTORE_B64 != ''
+        uses: r0adkll/sign-android-release@v1
+        env: { BUILD_TOOLS_VERSION: "34.0.0" }
+        with:
+          releaseDirectory: android/app/build/outputs/bundle/release
+          signingKeyBase64: ${{ secrets.KEYSTORE_BASE64 }}
+          alias: ${{ secrets.KEY_ALIAS }}
+          keyStorePassword: ${{ secrets.KEYSTORE_PASSWORD }}
+          keyPassword: ${{ secrets.KEY_PASSWORD }}
+      - name: Unggah hasil release
+        if: env.KEYSTORE_B64 != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: sagara-karya-release
+          path: |
+            android/app/build/outputs/apk/release/*-signed.apk
+            android/app/build/outputs/bundle/release/*-signed.aab

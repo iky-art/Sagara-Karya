@@ -1,0 +1,164 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: 252 251 246; --surface: 255 255 255; --ink: 26 48 80; --muted: 80 91 108;
+  --line: 228 223 212; --accent: 176 82 46; --sun: 208 118 74; --sand: 250 236 224;
+  --onaccent: 255 255 255; --danger: 185 28 28;
+  --gw: 255 255 255; --ga1: .66; --ga2: .34; --gab: .8; --gah: .9; --glow: .38; --glow2: .2;
+}
+:root[data-theme='dark'] {
+  --bg: 13 20 33; --surface: 20 29 46; --ink: 242 236 224; --muted: 160 170 186;
+  --line: 38 50 72; --accent: 236 156 114; --sun: 224 130 88; --sand: 46 38 40;
+  --onaccent: 13 20 33; --danger: 248 113 113;
+  --gw: 255 255 255; --ga1: .13; --ga2: .05; --gab: .2; --gah: .3; --glow: .34; --glow2: .32;
+}
+@layer base {
+  html { scroll-padding-top: 6rem; scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+  body { @apply bg-bg text-ink font-sans antialiased overflow-x-hidden; transition: background-color .25s ease, color .25s ease; }
+  h1, h2, h3 { letter-spacing: -0.03em; }
+  * { -webkit-tap-highlight-color: transparent; }
+  :focus-visible { outline: 2px solid rgb(var(--accent)); outline-offset: 3px; border-radius: 8px; }
+}
+@layer components {
+  .wrap { @apply mx-auto w-full max-w-6xl px-5 sm:px-8; }
+  .section { @apply py-20 md:py-28; }
+  .btn { @apply inline-flex min-h-[52px] items-center justify-center rounded-full px-6 text-[15px] font-semibold transition duration-200; }
+  .btn-primary { @apply bg-ink text-bg hover:opacity-90; }
+  .btn-ghost { @apply border border-line bg-surface text-ink hover:bg-sand; }
+  .card { @apply rounded-3xl p-6; }
+}
+.aurora {
+  background:
+    radial-gradient(55% 45% at 12% 8%, rgb(var(--sun) / .26), transparent 70%),
+    radial-gradient(50% 40% at 92% 22%, rgb(var(--ink) / .12), transparent 70%),
+    linear-gradient(rgb(var(--ink) / .05) 1px, transparent 1px) 0 0 / 40px 40px,
+    linear-gradient(90deg, rgb(var(--ink) / .05) 1px, transparent 1px) 0 0 / 40px 40px;
+  -webkit-mask-image: linear-gradient(to bottom, #000 55%, transparent);
+  mask-image: linear-gradient(to bottom, #000 55%, transparent);
+}
+.grad-text { background: linear-gradient(90deg, rgb(var(--ink)), rgb(var(--sun))); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.logo-d { display: none; }
+:root[data-theme='dark'] .logo-l { display: none; }
+:root[data-theme='dark'] .logo-d { display: block; }
+.reveal { opacity: 0; transform: translateY(10px); transition: opacity .6s ease, transform .6s ease; }
+.reveal.in { opacity: 1; transform: none; }
+details > summary { list-style: none; }
+details > summary::-webkit-details-marker { display: none; }
+details[open] .plus { transform: rotate(45deg); }
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; }
+  .reveal { opacity: 1; transform: none; }
+}
+
+/* Checkbox custom (menimpa tampilan bawaan browser) */
+input[type='checkbox'] {
+  -webkit-appearance: none; appearance: none; flex-shrink: 0;
+  display: inline-grid; place-content: center;
+  width: 1.375rem; height: 1.375rem; cursor: pointer;
+  border: 1.5px solid rgb(var(--ink) / .35); border-radius: .45rem;
+  background-color: rgb(var(--surface));
+  transition: background-color .15s ease, border-color .15s ease;
+}
+input[type='checkbox']:hover { border-color: rgb(var(--ink)); }
+input[type='checkbox']:checked { background-color: rgb(var(--ink)); border-color: rgb(var(--ink)); }
+input[type='checkbox']::after {
+  content: ''; width: .7rem; height: .38rem; margin-top: -2px;
+  border-left: 2px solid rgb(var(--bg)); border-bottom: 2px solid rgb(var(--bg));
+  transform: rotate(-45deg) scale(0); transition: transform .15s ease;
+}
+input[type='checkbox']:checked::after { transform: rotate(-45deg) scale(1); }
+label.border:has(> input[type='checkbox']:checked) { border-color: rgb(var(--ink)); background-color: rgb(var(--sand)); }
+
+/* ===== Liquid Glass ===== */
+body::before {
+  content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background:
+    radial-gradient(42% 34% at 14% 10%, rgb(var(--sun) / var(--glow)), transparent 72%),
+    radial-gradient(46% 38% at 92% 28%, rgb(var(--ink) / var(--glow2)), transparent 72%),
+    radial-gradient(50% 42% at 28% 88%, rgb(var(--sun) / calc(var(--glow) * .8)), transparent 72%),
+    radial-gradient(42% 36% at 88% 92%, rgb(var(--ink) / var(--glow2)), transparent 72%);
+}
+.glass, .card, .btn-ghost {
+  position: relative; isolation: isolate;
+  background: linear-gradient(145deg, rgb(var(--gw) / var(--ga1)), rgb(var(--gw) / var(--ga2)));
+  -webkit-backdrop-filter: blur(20px) saturate(170%); backdrop-filter: blur(20px) saturate(170%);
+  border: 1px solid rgb(var(--gw) / var(--gab));
+  box-shadow: inset 0 1px 0 rgb(var(--gw) / var(--gah)), inset 0 -1px 0 rgb(var(--gw) / .12), inset 0 0 18px rgb(var(--gw) / .10),
+    0 0 0 1px rgb(var(--ink) / .05), 0 16px 34px -18px rgb(var(--ink) / .4);
+}
+.glass::before, .card::before, .btn-ghost::before {
+  content: ''; position: absolute; inset: 0; z-index: -1; border-radius: inherit; pointer-events: none; opacity: .55;
+  background: radial-gradient(110% 70% at 12% 0%, rgb(var(--gw) / var(--gah)), transparent 48%);
+}
+.btn-primary {
+  position: relative; color: rgb(var(--bg));
+  background: linear-gradient(180deg, rgb(var(--ink) / .86), rgb(var(--ink) / .96));
+  border: 1px solid rgb(var(--gw) / .25);
+  box-shadow: inset 0 1px 0 rgb(var(--gw) / .35), 0 12px 26px -12px rgb(var(--ink) / .65);
+}
+input:not([type='checkbox']), textarea, select {
+  background-color: rgb(var(--gw) / var(--ga1)); border-color: rgb(var(--gw) / var(--gab));
+  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+  box-shadow: inset 0 1px 2px rgb(var(--ink) / .08);
+}
+input[type='checkbox'] { background-color: rgb(var(--gw) / var(--ga1)); }
+dialog {
+  background: rgb(var(--bg) / .72); border: 1px solid rgb(var(--gw) / var(--gab));
+  -webkit-backdrop-filter: blur(30px) saturate(180%); backdrop-filter: blur(30px) saturate(180%);
+  box-shadow: inset 0 1px 0 rgb(var(--gw) / var(--gah)), 0 30px 80px -20px rgb(0 0 0 / .5);
+}
+dialog::backdrop { -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
+@media (prefers-reduced-transparency: reduce) {
+  .glass, .card, .btn-ghost, input:not([type='checkbox']), textarea, select, dialog {
+    -webkit-backdrop-filter: none; backdrop-filter: none; background: rgb(var(--surface));
+  }
+  .glass::before, .card::before, .btn-ghost::before { display: none; }
+}
+@supports not ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+  .glass, .card, .btn-ghost, dialog { background: rgb(var(--surface) / .94); }
+}
+
+@keyframes notif-in { from { opacity: 0; transform: translateY(-18px) scale(.96); } to { opacity: 1; transform: none; } }
+.notif { animation: notif-in .45s cubic-bezier(.2, .9, .3, 1.1) both; }
+
+/* Splash screen */
+.splash {
+  background:
+    radial-gradient(42% 34% at 14% 10%, rgb(var(--sun) / var(--glow)), transparent 72%),
+    radial-gradient(46% 38% at 92% 28%, rgb(var(--ink) / var(--glow2)), transparent 72%),
+    radial-gradient(50% 42% at 28% 88%, rgb(var(--sun) / calc(var(--glow) * .8)), transparent 72%),
+    rgb(var(--bg));
+  transition: opacity .6s ease, visibility .6s;
+}
+.splash-out { opacity: 0; visibility: hidden; }
+.splash-logo { animation: splash-pop 1.1s cubic-bezier(.2, .9, .3, 1.2) both; }
+.splash-word { animation: splash-rise .9s .6s ease both; }
+.splash-sub { animation: splash-rise .9s 1s ease both; }
+.splash-bar { animation: splash-rise .6s 1.2s ease both; }
+.splash-fill { animation: splash-fill 2s 1.2s ease-in-out both; transform-origin: left; }
+@keyframes splash-fill { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes splash-pop { from { opacity: 0; transform: scale(.7); } to { opacity: 1; transform: none; } }
+@keyframes splash-rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+
+/* Notifikasi: solid, tidak transparan */
+.solid {
+  background: rgb(var(--surface)); border: 1px solid rgb(var(--line));
+  -webkit-backdrop-filter: none; backdrop-filter: none;
+  box-shadow: 0 16px 40px -16px rgb(var(--ink) / .45), 0 0 0 1px rgb(var(--ink) / .06);
+}
+.solid::before { display: none; }
+
+/* Pengaturan tampilan dari Setelan */
+html[data-glass='off'] body::before { display: none; }
+html[data-glass='off'] .glass, html[data-glass='off'] .card, html[data-glass='off'] .btn-ghost, html[data-glass='off'] dialog,
+html[data-glass='off'] input:not([type='checkbox']), html[data-glass='off'] textarea, html[data-glass='off'] select {
+  -webkit-backdrop-filter: none; backdrop-filter: none; background: rgb(var(--surface));
+}
+html[data-glass='off'] .glass::before, html[data-glass='off'] .card::before, html[data-glass='off'] .btn-ghost::before { display: none; }
+html[data-motion='reduce'] *, html[data-motion='reduce'] *::before, html[data-motion='reduce'] *::after {
+  transition-duration: .01ms !important; animation-duration: .01ms !important; animation-delay: 0ms !important; scroll-behavior: auto !important;
+}
+html[data-motion='reduce'] .reveal { opacity: 1; transform: none; }

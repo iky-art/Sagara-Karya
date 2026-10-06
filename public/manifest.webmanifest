@@ -1,0 +1,21 @@
+{
+  "name": "Sagara Karya",
+  "short_name": "Sagara",
+  "description": "Studio digital untuk website dan identitas digital.",
+  "lang": "id",
+  "start_url": "/app",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FCFBF6",
+  "theme_color": "#FCFBF6",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Lacak Pesanan", "url": "/app?lacak=1" },
+    { "name": "Voucher", "url": "/app?tab=voucher" }
+  ]
+}
