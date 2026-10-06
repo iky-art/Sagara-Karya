@@ -1,6 +1,6 @@
 // Kontak: isi salah satu atau keduanya. Kosong semua = tombol Konsultasi menuju bagian CTA.
 export const CONTACT_WA = '' // nomor WhatsApp, mis. 081234567890
-export const CONTACT_EMAIL = 'sagarakaryastudio@gmail.com ' // mis. namakamu@gmail.com
+export const CONTACT_EMAIL = '' // mis. namakamu@gmail.com
 const waNum = CONTACT_WA.replace(/\D/g, '').replace(/^0/, '62')
 export const channels = [
   ...(waNum ? [{ id: 'wa', label: 'WhatsApp', href: `https://wa.me/${waNum}?text=${encodeURIComponent('Halo Sagara Karya, saya ingin berkonsultasi.')}` }] : []),

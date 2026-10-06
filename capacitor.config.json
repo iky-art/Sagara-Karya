@@ -1,7 +1,0 @@
-{
-  "appId": "id.sagarakarya.app",
-  "appName": "Sagara Karya",
-  "webDir": "dist",
-  "backgroundColor": "#FCFBF6",
-  "server": { "androidScheme": "https" }
-}

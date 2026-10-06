@@ -14,8 +14,8 @@ function Login() {
   const [e, setE] = useState(''), [p, setP] = useState(''), [m, setM] = useState('')
   const go = async (ev) => {
     ev.preventDefault(); setM('')
-    const { error } = await supabase.auth.signInWithPassword({ email: e, password: p })
-    if (error) setM('Email atau password salah.')
+    const { error } = await supabase.auth.signInWithPassword({ email: e.trim(), password: p })
+    if (error) setM(/invalid login/i.test(error.message) ? 'Email atau password salah.' : /not confirmed/i.test(error.message) ? 'Email belum dikonfirmasi di Supabase (Authentication > Users).' : /fetch|network/i.test(error.message) ? 'Tidak bisa terhubung ke Supabase. Periksa VITE_SUPABASE_URL dan pastikan proyek tidak paused.' : /api key/i.test(error.message) ? 'Anon key tidak valid. Periksa VITE_SUPABASE_ANON_KEY.' : 'Gagal masuk: ' + error.message)
   }
   return (
     <main className="grid min-h-screen place-items-center px-5">
