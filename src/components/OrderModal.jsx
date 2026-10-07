@@ -4,9 +4,11 @@ import { rupiah } from '../lib/pricing.js'
 import { eligible, useClaimed, useVouchers, voucherCut, voucherLabel } from '../lib/vouchers.js'
 import { addMyOrder } from '../lib/myorders.js'
 import { getProfile } from '../lib/profile.js'
+import { getPrefs } from '../lib/prefs.js'
 import { services } from '../data.js'
 
 const inp = 'mt-1 w-full rounded-lg border border-line bg-bg px-3 py-2.5 text-base text-ink placeholder:text-muted focus:border-accent'
+const pf = () => (getPrefs().autofill ? getProfile() : { name: '', wa: '', email: '', city: '', age: '' })
 const normWa = (v) => { const d = v.replace(/\D/g, ''); return d.startsWith('0') ? '62' + d.slice(1) : d }
 const okWa = (v) => /^628\d{8,11}$/.test(normWa(v))
 const okMail = (v) => /^[a-z0-9._%+-]+@gmail\.com$/i.test(v.trim())
@@ -25,7 +27,7 @@ function Field({ label, error, hint, children }) {
 
 export default function OrderModal({ pkg, onClose }) {
   const ref = useRef(null)
-  const [f, setF] = useState({ name: getProfile().name, wa: getProfile().wa, email: getProfile().email, city: getProfile().city, age: getProfile().age, notes: '', pname: '', pcontact: '', consent: false, agree: false })
+  const [f, setF] = useState({ name: pf().name, wa: pf().wa, email: pf().email, city: pf().city, age: pf().age, notes: '', pname: '', pcontact: '', consent: false, agree: false })
   const [needs, setNeeds] = useState([])
   const [err, setErr] = useState({})
   const [state, setState] = useState('idle')

@@ -1,6 +1,7 @@
 import { useEffect, useState, useSyncExternalStore } from 'react'
 import { supabase } from './supabase.js'
 import { rupiah } from './pricing.js'
+import { getPrefs } from './prefs.js'
 export const voucherLabel = (v) => (v.kind === 'persen' ? `${v.value}%` : rupiah(v.value))
 export const voucherCut = (base, v) => Math.min(base, v.kind === 'persen' ? Math.floor((base * v.value) / 100) : v.value)
 export const eligible = (v, pkgName, t = Date.now()) =>
@@ -12,7 +13,7 @@ export function useVouchers() {
     if (!supabase) return
     const load = () => supabase.from('vouchers').select('*').order('created_at', { ascending: false }).then(({ data }) => data && setR(data))
     load()
-    const t = setInterval(load, 60000)
+    const t = setInterval(() => { if (!getPrefs().saver) load() }, 60000)
     return () => clearInterval(t)
   }, [])
   return r

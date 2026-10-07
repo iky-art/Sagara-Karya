@@ -7,10 +7,12 @@ import { openCenter, unreadOf, useBroadcasts } from '../lib/broadcast.js'
 import { buzz, usePrefs } from '../lib/prefs.js'
 import { enterFull, setWake } from '../lib/device.js'
 import { isStandalone } from '../lib/pwa.js'
-import { Cara, Faq, Home, I, Ico, InfoApp, Lacak, Langganan, Paket, Profil, Setelan, Voucher, VoucherKu } from './screens.jsx'
+import { Cara, Faq, Home, I, Ico, InfoApp, Lacak, Langganan, Paket, Profil, Voucher, VoucherKu } from './screens.jsx'
+import * as S from './settings.jsx'
+import Toaster from '../components/Toaster.jsx'
 const TABS = [['home', 'Beranda', I.home], ['paket', 'Paket', I.box], ['voucher', 'Voucher', I.ticket], ['setelan', 'Setelan', I.sliders]]
 const TITLE = { home: 'Sagara Karya', paket: 'Paket', voucher: 'Voucher', setelan: 'Setelan' }
-const SUBS = { lacak: 'Lacak Pesanan', profil: 'Profil Saya', voucherku: 'Voucher Saya', faq: 'Pertanyaan Umum', cara: 'Cara Kerja', info: 'Info Aplikasi', langganan: 'Kabar Email' }
+const SUBS = { lacak: 'Lacak Pesanan', profil: 'Profil Saya', voucherku: 'Voucher Saya', faq: 'Pertanyaan Umum', cara: 'Cara Kerja', info: 'Info Aplikasi', langganan: 'Kabar Email', 'set-akun': 'Akun & Pesanan', 'set-notif': 'Notifikasi', 'set-tampilan': 'Tampilan', 'set-layar': 'Layar & Perangkat', 'set-data': 'Privasi & Data', 'set-bantuan': 'Bantuan', 'set-tentang': 'Tentang', tips: 'Tips Penggunaan', rilis: 'Catatan Rilis', kredit: 'Kredit' }
 export default function AppShell() {
   const q = new URLSearchParams(location.search)
   const pr = usePrefs()
@@ -35,7 +37,7 @@ export default function AppShell() {
   const back = () => (history.state?.sub ? history.back() : setSub(null))
   const go = (k) => { buzz(); setSub(null); setTab(k) }
   const shown = sub ? SUBS[sub] : TITLE[tab]
-  const subView = { lacak: <Lacak />, profil: <Profil />, voucherku: <VoucherKu />, faq: <Faq />, cara: <Cara />, info: <InfoApp />, langganan: <Langganan /> }[sub]
+  const subView = { lacak: <Lacak />, profil: <Profil />, voucherku: <VoucherKu />, faq: <Faq />, cara: <Cara />, info: <InfoApp />, langganan: <Langganan />, 'set-akun': <S.SetAkun openSub={openSub} />, 'set-notif': <S.SetNotif />, 'set-tampilan': <S.SetTampilan />, 'set-layar': <S.SetLayar />, 'set-data': <S.SetData />, 'set-bantuan': <S.SetBantuan openSub={openSub} />, 'set-tentang': <S.SetTentang openSub={openSub} />, tips: <S.Tips />, rilis: <S.Rilis />, kredit: <S.Kredit /> }[sub]
   return (
     <>
       <Splash />
@@ -55,7 +57,7 @@ export default function AppShell() {
       </header>
       {!online && <p role="status" className="solid fixed left-1/2 top-[calc(env(safe-area-inset-top)+4.9rem)] z-30 -translate-x-1/2 rounded-full px-4 py-1.5 text-sm font-medium">Kamu sedang offline</p>}
       <main className="mx-auto max-w-lg px-4 pb-36 pt-[calc(env(safe-area-inset-top)+5.5rem)]">
-        {sub ? subView : tab === 'home' ? <Home go={go} openSub={openSub} /> : tab === 'paket' ? <Paket /> : tab === 'voucher' ? <Voucher /> : <Setelan openSub={openSub} />}
+        {sub ? subView : tab === 'home' ? <Home go={go} openSub={openSub} /> : tab === 'paket' ? <Paket /> : tab === 'voucher' ? <Voucher /> : <S.Setelan openSub={openSub} />}
       </main>
       <nav aria-label="Menu aplikasi" className="fixed inset-x-0 bottom-0 z-40 px-4 pb-[calc(env(safe-area-inset-bottom)+0.75rem)]">
         <div className="glass mx-auto flex max-w-sm gap-1 rounded-full p-1.5">
@@ -71,6 +73,7 @@ export default function AppShell() {
       </nav>
       <NotificationLayer />
       <ContactChooser />
+      <Toaster />
     </>
   )
 }

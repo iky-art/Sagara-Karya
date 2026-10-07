@@ -84,7 +84,7 @@ body::before {
 .glass, .card, .btn-ghost {
   position: relative; isolation: isolate;
   background: linear-gradient(145deg, rgb(var(--gw) / var(--ga1)), rgb(var(--gw) / var(--ga2)));
-  -webkit-backdrop-filter: blur(20px) saturate(170%); backdrop-filter: blur(20px) saturate(170%);
+  -webkit-backdrop-filter: blur(var(--blur, 20px)) saturate(170%); backdrop-filter: blur(var(--blur, 20px)) saturate(170%);
   border: 1px solid rgb(var(--gw) / var(--gab));
   box-shadow: inset 0 1px 0 rgb(var(--gw) / var(--gah)), inset 0 -1px 0 rgb(var(--gw) / .12), inset 0 0 18px rgb(var(--gw) / .10),
     0 0 0 1px rgb(var(--ink) / .05), 0 16px 34px -18px rgb(var(--ink) / .4);
@@ -166,3 +166,14 @@ html[data-motion='reduce'] .reveal { opacity: 1; transform: none; }
 body { min-height: 100dvh; }
 html[data-contrast='high'] { --muted: 45 55 72; --line: 150 140 125; }
 html[data-theme='dark'][data-contrast='high'] { --muted: 205 212 224; --line: 100 116 140; }
+
+/* Warna aksen pilihan */
+html[data-accent='biru'] { --accent: 29 78 160; --sun: 59 130 220; }
+html[data-accent='hijau'] { --accent: 21 110 80; --sun: 52 168 120; }
+html[data-accent='ungu'] { --accent: 110 60 170; --sun: 160 110 220; }
+html[data-theme='dark'][data-accent='biru'] { --accent: 120 170 240; --sun: 90 150 230; }
+html[data-theme='dark'][data-accent='hijau'] { --accent: 110 200 160; --sun: 70 180 130; }
+html[data-theme='dark'][data-accent='ungu'] { --accent: 190 150 240; --sun: 160 110 220; }
+/* Jenis huruf pilihan */
+html[data-font='system'] * { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; }
+html[data-font='serif'] * { font-family: Georgia, 'Times New Roman', serif; }

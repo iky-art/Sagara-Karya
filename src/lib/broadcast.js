@@ -19,7 +19,7 @@ export const unreadOf = (st) => st.items.filter((i) => !st.read.includes(i.id))
 function showBanner(item) {
   if (!getPrefs().banner) return
   seen.add(item.id); clearTimeout(timer)
-  set({ banner: item }); timer = setTimeout(() => set({ banner: null }), 8000)
+  set({ banner: item }); timer = setTimeout(() => set({ banner: null }), getPrefs().bannerMs)
 }
 async function load() {
   const { data } = await supabase.from('broadcasts').select('*').order('created_at', { ascending: false }).limit(20)
@@ -33,11 +33,17 @@ async function load() {
   const next = unreadOf(s).find((i) => !seen.has(i.id))
   if (next && !s.sheet) showBanner(next)
 }
+function schedule() {
+  setTimeout(async () => {
+    if (!getPrefs().saver && (document.visibilityState === 'visible' || getPrefs().notify)) await load()
+    schedule()
+  }, getPrefs().poll * 1000)
+}
 export function startBroadcasts() {
   if (started || !supabase) return
   started = true
   setTimeout(load, 1200)
-  setInterval(() => (document.visibilityState === 'visible' || getPrefs().notify) && load(), 45000)
+  schedule()
 }
 export function openCenter() {
   clearTimeout(timer)

@@ -9,7 +9,7 @@ export default function Splash() {
     if (!show) return
     try { sessionStorage.setItem('sk-splash', '1') } catch (e) {}
     document.body.style.overflow = 'hidden'
-    const a = setTimeout(() => setOut(true), 3200)
+    const a = setTimeout(() => setOut(true), getPrefs().splashMs)
     return () => { clearTimeout(a); document.body.style.overflow = '' }
   }, [show])
   useEffect(() => {
