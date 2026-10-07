@@ -11,8 +11,14 @@ import { askNotify, enterFull, exitFull, wakeSupported } from '../lib/device.js'
 import { openContact } from '../lib/contact.js'
 import { useClaimed } from '../lib/vouchers.js'
 import { toast } from '../lib/toast.js'
+import { BUILD_ID } from '../lib/version.js'
+import { useVersion } from '../lib/release.js'
+import { supabase } from '../lib/supabase.js'
+import { checkUpdate } from '../lib/update.js'
+import { changelog } from '../changelog.js'
+import { useRelease } from '../lib/release.js'
 
-const KEYS = ['sk-vouchers', 'sk-orders', 'sk-read', 'sk-prefs', 'sk-profile', 'sk-theme', 'sk-sub']
+const KEYS = ['sk-vouchers', 'sk-orders', 'sk-read', 'sk-prefs', 'sk-profile', 'sk-theme', 'sk-sub', 'sk-usage']
 const P = (k) => (v) => { setPref(k, v); buzz() }
 const wipeKeys = (ks, ask) => { if (!confirm(ask)) return; ks.forEach((k) => { try { localStorage.removeItem(k) } catch (e) {} }); location.reload() }
 
@@ -26,6 +32,9 @@ const CATS = [
   ['tentang', 'Tentang', I.info, 'Versi, catatan rilis, kredit'],
 ]
 const INDEX = [
+  ['Jangan ganggu', 'notif', 'dnd senyap'], ['Jadwal senyap', 'notif', 'malam jam'], ['Suara notifikasi', 'notif', 'bunyi'], ['Isi Beranda', 'tampilan', 'layanan voucher sosial email'],
+  ['Kekuatan getaran', 'layar', 'haptic'], ['Geser untuk kembali', 'layar', 'gestur swipe'], ['Salin info diagnostik', 'bantuan', 'versi'], ['Uji koneksi server', 'bantuan', 'ping'],
+  ['Pembaruan otomatis', 'data', 'update versi'], ['Periksa pembaruan', 'data', 'versi'],
   ['Profil saya', 'akun', 'nama nomor kota umur'], ['Lacak pesanan', 'akun', 'id status'], ['Voucher saya', 'akun', 'kode'], ['Kabar lewat email', 'akun', 'berlangganan newsletter'],
   ['Isi otomatis formulir', 'akun', 'autofill'], ['Instagram', 'akun', 'sosial media'], ['TikTok', 'akun', 'sosial media'],
   ['Pusat notifikasi', 'notif', ''], ['Banner notifikasi', 'notif', 'pemberitahuan'], ['Notifikasi sistem', 'notif', 'bilah'], ['Tandai semua dibaca', 'notif', ''],
@@ -41,6 +50,7 @@ const INDEX = [
 ]
 
 export function Setelan({ openSub }) {
+  const ver = useVersion()
   const [q, setQ] = useState('')
   const unread = unreadOf(useBroadcasts()).length
   const name = getProfile().name
@@ -67,7 +77,7 @@ export function Setelan({ openSub }) {
             {CATS.map(([k, l, ic, h]) => <Row key={k} icon={ic} label={l} hint={k === 'notif' && unread ? `${unread} belum dibaca` : h} onClick={() => openSub('set-' + k)}
               right={k === 'notif' && unread ? <span className="grid h-6 min-w-[24px] place-items-center rounded-full bg-accent px-1.5 text-xs font-bold text-onaccent">{unread}</span> : undefined} />)}
           </Group>
-          <p className="px-2 text-center text-sm text-muted">Sagara Karya versi 1.0.0</p>
+          <p className="px-2 text-center text-sm text-muted">Sagara Karya versi {ver}</p>
         </>
       )}
     </div>
@@ -111,6 +121,17 @@ export function SetNotif() {
         <Seg caption="Lama banner tampil" value={pr.bannerMs} onChange={P('bannerMs')} options={[[4000, '4 detik'], [8000, '8 detik'], [15000, '15 detik']]} />
         <Seg caption="Cek broadcast baru tiap" value={pr.poll} onChange={P('poll')} options={[[30, '30 detik'], [45, '45 detik'], [90, '90 detik']]} />
       </div>
+      <Group title="Jangan ganggu">
+        <Item icon={I.bell} label="Jangan ganggu" hint="Tidak ada banner, suara, atau notifikasi sistem" on={pr.dnd} onChange={P('dnd')} />
+        <Item icon={I.play} label="Jadwal senyap" hint="Aktif otomatis pada jam yang dipilih" on={pr.quiet} onChange={P('quiet')} />
+        {pr.quiet && (
+          <div className="flex items-center gap-3 p-4 text-sm">
+            <label className="flex flex-1 items-center justify-between gap-2">Mulai<input type="time" value={pr.quietFrom} onChange={(e) => setPref('quietFrom', e.target.value)} className="rounded-lg border border-line bg-bg px-2 py-1.5" /></label>
+            <label className="flex flex-1 items-center justify-between gap-2">Selesai<input type="time" value={pr.quietTo} onChange={(e) => setPref('quietTo', e.target.value)} className="rounded-lg border border-line bg-bg px-2 py-1.5" /></label>
+          </div>
+        )}
+        <Item icon={I.vibrate} label="Suara notifikasi" hint="Bunyi singkat saat ada broadcast baru" on={pr.sound} onChange={P('sound')} />
+      </Group>
       <p className="px-2 text-sm text-muted">Notifikasi sistem hanya muncul selama aplikasi masih berjalan di latar. Mode Hemat data menghentikan pengecekan otomatis.</p>
     </div>
   )
@@ -130,6 +151,12 @@ export function SetTampilan() {
       <Seg caption="Intensitas warna latar" value={pr.glow} onChange={P('glow')} options={[['low', 'Rendah'], ['normal', 'Sedang'], ['high', 'Tinggi']]} />
       <Seg caption="Kekuatan blur kaca" value={pr.blur} onChange={P('blur')} options={[['low', 'Rendah'], ['normal', 'Sedang'], ['high', 'Tinggi']]} />
       <Seg caption="Durasi splash" value={pr.splashMs} onChange={P('splashMs')} options={[[1500, 'Singkat'], [3200, 'Normal'], [5000, 'Panjang']]} />
+      <Group title="Isi Beranda">
+        <Item icon={I.steps} label="Layanan" on={pr.homeServices} onChange={P('homeServices')} />
+        <Item icon={I.ticket} label="Voucher" on={pr.homeVoucher} onChange={P('homeVoucher')} />
+        <Item icon={I.heart} label="Ikuti akun resmi" on={pr.homeSocial} onChange={P('homeSocial')} />
+        <Item icon={I.mail} label="Kabar lewat email" on={pr.homeEmail} onChange={P('homeEmail')} />
+      </Group>
       <Group title="Efek dan aksesibilitas">
         <Item icon={I.bolt} label="Mode ringan" hint="Matikan efek kaca, animasi, dan splash sekaligus" on={light} onChange={setLight} />
         <Item icon={I.sparkle} label="Efek kaca" hint="Matikan jika aplikasi terasa berat" on={pr.glass} onChange={P('glass')} />
@@ -156,12 +183,23 @@ export function SetLayar() {
         <Item icon={I.vibrate} label="Getaran" hint="Getar singkat saat menekan tombol" on={pr.haptic} onChange={P('haptic')} />
         <Row icon={I.vibrate} label="Uji getaran" hint={navigator.vibrate ? 'Getar sekali' : 'Tidak didukung di perangkat ini'} right={<span />} onClick={() => { navigator.vibrate?.(60); toast(navigator.vibrate ? 'Getar diuji' : 'Getaran tidak didukung') }} />
       </Group>
+      <Seg caption="Kekuatan getaran" value={pr.hapticLevel} onChange={P('hapticLevel')} options={[['low', 'Lemah'], ['normal', 'Sedang'], ['high', 'Kuat']]} />
+      <Group title="Gestur">
+        <Item icon={I.back} label="Geser untuk kembali" hint="Geser dari tepi kiri layar untuk kembali di halaman dalam" on={pr.swipeBack} onChange={P('swipeBack')} />
+      </Group>
       <Seg caption="Halaman saat aplikasi dibuka" value={pr.start} onChange={P('start')} options={[['home', 'Beranda'], ['paket', 'Paket'], ['voucher', 'Voucher']]} />
     </div>
   )
 }
 
 export function SetData() {
+  const pr = usePrefs()
+  const ver = useVersion()
+  const check = async () => {
+    toast('Memeriksa pembaruan...')
+    const r = await checkUpdate()
+    toast(r === 'new' ? 'Versi baru tersedia' : r === 'latest' ? `Sudah versi terbaru (${ver})` : r === 'build' ? 'Ada pembaruan kode, ketuk Perbarui aplikasi' : 'Gagal memeriksa. Periksa koneksi.')
+  }
   const [perm, setPerm] = useState('Notification' in window ? Notification.permission : 'tidak didukung')
   let bytes = 0
   try { KEYS.forEach((k) => { bytes += (localStorage.getItem(k) || '').length }) } catch (e) {}
@@ -203,6 +241,8 @@ export function SetData() {
         <Row icon={I.trash} label="Hapus semua data" hint="Termasuk pengaturan" danger right={<span />} onClick={() => wipeKeys([...KEYS, 'sk-install-dismissed'], 'Hapus semua data dan pengaturan di perangkat ini?')} />
       </Group>
       <Group title="Pembaruan">
+        <Item icon={I.refresh} label="Pembaruan otomatis" hint="Muat versi baru saat kamu kembali ke aplikasi" on={pr.autoUpdate} onChange={P('autoUpdate')} />
+        <Row icon={I.info} label="Periksa pembaruan" hint={`Versi terpasang ${ver}`} right={<span />} onClick={check} />
         <Row icon={I.refresh} label="Perbarui aplikasi" hint="Kosongkan cache dan muat versi terbaru" right={<span />} onClick={refresh} />
       </Group>
     </div>
@@ -210,17 +250,27 @@ export function SetData() {
 }
 
 export function SetBantuan({ openSub }) {
+  const ver = useVersion()
   const dm = ['fullscreen', 'standalone', 'minimal-ui', 'browser'].find((m) => window.matchMedia(`(display-mode: ${m})`).matches) || 'browser'
+  const diag = () => `Sagara Karya\nVersi: ${ver} (${BUILD_ID})\nMode: ${dm}\nPerangkat: ${navigator.userAgent}\nOnline: ${navigator.onLine}\n`
   const share = async () => {
     const data = { title: 'Sagara Karya', text: 'Studio digital untuk website dan identitas digital.', url: location.origin }
     try { if (navigator.share) await navigator.share(data); else { await navigator.clipboard.writeText(data.url); toast('Tautan disalin') } } catch (e) {}
   }
   const report = async () => {
-    const text = `Laporan masalah Sagara Karya\nVersi: 1.0.0\nMode: ${dm}\nPerangkat: ${navigator.userAgent}\nOnline: ${navigator.onLine}\n\nJelaskan masalahnya:\n`
+    const text = `Laporan masalah\n${diag()}\nJelaskan masalahnya:\n`
     const wa = channels.find((c) => c.id === 'wa'), mail = channels.find((c) => c.id === 'mail')
     if (wa) window.open(`${wa.href.split('?')[0]}?text=${encodeURIComponent(text)}`, '_blank', 'noopener')
     else if (mail) location.href = `${mail.href.split('?')[0]}?subject=${encodeURIComponent('Laporan masalah Sagara Karya')}&body=${encodeURIComponent(text)}`
     else { try { await navigator.clipboard.writeText(text); toast('Detail laporan disalin') } catch (e) { toast('Gagal menyalin') } }
+  }
+  const copyDiag = async () => { try { await navigator.clipboard.writeText(diag()); toast('Info diagnostik disalin') } catch (e) { toast('Gagal menyalin') } }
+  const ping = async () => {
+    if (!supabase) return toast('Server belum dikonfigurasi')
+    toast('Menguji koneksi...')
+    const t = performance.now()
+    const { error } = await supabase.from('broadcasts').select('id').limit(1)
+    toast(error ? 'Gagal terhubung ke server' : `Terhubung ke server (${Math.round(performance.now() - t)} ms)`)
   }
   return (
     <div className="space-y-6">
@@ -234,18 +284,23 @@ export function SetBantuan({ openSub }) {
         <Row icon={I.info} label="Lapor masalah" hint="Kirim detail perangkat bersama laporanmu" right={<span />} onClick={report} />
         <Row icon={I.share} label="Bagikan aplikasi" right={<span />} onClick={share} />
       </Group>
+      <Group title="Diagnostik">
+        <Row icon={I.save} label="Salin info diagnostik" hint="Versi, build, dan perangkat" right={<span />} onClick={copyDiag} />
+        <Row icon={I.bolt} label="Uji koneksi server" hint="Ukur waktu respons" right={<span />} onClick={ping} />
+      </Group>
       <Group title="Lainnya"><Row icon={I.globe} label="Lihat versi website" href="/?web=1" /></Group>
     </div>
   )
 }
 
 export function SetTentang({ openSub }) {
+  const ver = useVersion()
   const ins = useInstall()
   return (
     <div className="space-y-6">
       <section className="glass flex items-center gap-4 rounded-3xl p-5">
         <Logo className="h-14 w-14" />
-        <div><p className="text-lg font-bold">Sagara <span className="grad-text">Karya</span></p><p className="text-sm text-muted">Studio digital untuk website dan identitas digital. Versi 1.0.0</p></div>
+        <div><p className="text-lg font-bold">Sagara <span className="grad-text">Karya</span></p><p className="text-sm text-muted">Studio digital untuk website dan identitas digital. Versi {ver}</p></div>
       </section>
       <Group title="Aplikasi">
         <Row icon={I.info} label="Info aplikasi" hint="Mode tampil, penyimpanan, status" onClick={() => openSub('info')} />
@@ -270,12 +325,23 @@ export const Tips = () => list([
   'Cadangkan data sebelum ganti HP, lalu pulihkan di perangkat baru.',
   'Layar penuh aktif setelah sentuhan pertama dan bisa dimatikan di Layar & perangkat.',
 ])
-export const Rilis = () => list([
-  'Versi 1.0.0: pemesanan paket dengan promo dan voucher, cek pesanan dengan ID, dan pusat notifikasi dari broadcast.',
-  'Tampilan aplikasi khusus (PWA) dengan gaya Liquid Glass, mode terang dan gelap, serta layar penuh.',
-  'Setelan lengkap: profil, tampilan, layar, privasi dan data, serta bantuan.',
-  'Langganan email tahap 1: pendaftaran alamat email. Pengiriman otomatis menyusul.',
-])
+export function Rilis() {
+  const { list } = useRelease()
+  const items = list.length
+    ? list.map((r) => ({ v: r.version, date: new Date(r.created_at).toLocaleDateString('id-ID', { dateStyle: 'long' }), title: r.title, items: r.notes }))
+    : changelog.map((c) => ({ v: c.v, date: c.date, title: '', items: c.items }))
+  return (
+    <div className="space-y-4">
+      {items.map((c) => (
+        <section key={c.v} className="glass rounded-3xl p-5">
+          <h2 className="text-lg font-bold">Versi {c.v} <span className="text-sm font-normal text-muted">{c.date}</span></h2>
+          {c.title && <p className="mt-0.5 font-medium">{c.title}</p>}
+          <ul className="mt-2 list-disc space-y-1 pl-5 text-muted">{c.items.map((t) => <li key={t}>{t}</li>)}</ul>
+        </section>
+      ))}
+    </div>
+  )
+}
 export const Kredit = () => list([
   'Huruf Plus Jakarta Sans (SIL Open Font License) lewat Google Fonts.',
   'React dan Vite untuk antarmuka dan proses build.',

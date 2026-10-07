@@ -16,3 +16,11 @@ export async function askNotify() {
   if (!('Notification' in window)) return 'unsupported'
   try { return await Notification.requestPermission() } catch (e) { return 'denied' }
 }
+export function beep() {
+  try {
+    const C = window.AudioContext || window.webkitAudioContext, c = new C(), o = c.createOscillator(), g = c.createGain()
+    o.type = 'sine'; o.frequency.value = 880
+    g.gain.setValueAtTime(0.0001, c.currentTime); g.gain.exponentialRampToValueAtTime(0.15, c.currentTime + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, c.currentTime + 0.25)
+    o.connect(g); g.connect(c.destination); o.start(); o.stop(c.currentTime + 0.26); setTimeout(() => c.close(), 400)
+  } catch (e) {}
+}

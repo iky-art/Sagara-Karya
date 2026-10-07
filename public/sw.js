@@ -1,4 +1,4 @@
-const V = 'sk-v2'
+const V = 'sk-v3'
 const SHELL = ['/', '/index.html', '/manifest.webmanifest', '/logo.png', '/logo-light.png']
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(V).then((c) => c.addAll(SHELL)).then(() => self.skipWaiting()))
@@ -11,6 +11,7 @@ self.addEventListener('fetch', (e) => {
   if (req.method !== 'GET') return
   const url = new URL(req.url)
   if (url.origin !== location.origin) return // Supabase & font Google tidak disentuh
+  if (url.pathname === '/version.json' || url.pathname === '/sw.js') return // selalu dari jaringan
   if (req.mode === 'navigate') {
     e.respondWith(
       fetch(req).then((r) => { if (r.ok) { const c = r.clone(); caches.open(V).then((x) => x.put('/index.html', c)) } return r })

@@ -1,6 +1,6 @@
 import { useSyncExternalStore } from 'react'
 const KEY = 'sk-prefs'
-const DEF = { text: 'normal', glass: true, motion: true, splash: true, haptic: true, banner: true, fullscreen: true, wake: false, glow: 'normal', contrast: false, start: 'home', notify: false, accent: 'terracotta', font: 'default', blur: 'normal', splashMs: 3200, saver: false, autofill: true, bannerMs: 8000, poll: 45 }
+const DEF = { text: 'normal', glass: true, motion: true, splash: true, haptic: true, banner: true, fullscreen: true, wake: false, glow: 'normal', contrast: false, start: 'home', notify: false, accent: 'terracotta', font: 'default', blur: 'normal', splashMs: 3200, saver: false, autofill: true, bannerMs: 8000, poll: 45, autoUpdate: true, dnd: false, quiet: false, quietFrom: '22:00', quietTo: '06:00', sound: false, swipeBack: true, hapticLevel: 'normal', homeServices: true, homeVoucher: true, homeSocial: true, homeEmail: true }
 const load = () => { try { return { ...DEF, ...JSON.parse(localStorage.getItem(KEY) || '{}') } } catch (e) { return { ...DEF } } }
 let p = load()
 const subs = new Set()
@@ -27,4 +27,12 @@ export function setPref(k, v) {
   apply(); subs.forEach((f) => f())
 }
 export const usePrefs = () => useSyncExternalStore((f) => { subs.add(f); return () => subs.delete(f) }, () => p)
-export const buzz = () => { if (p.haptic && navigator.vibrate) navigator.vibrate(10) }
+const VIB = { low: 6, normal: 10, high: 24 }
+export const buzz = () => { if (p.haptic && navigator.vibrate) navigator.vibrate(VIB[p.hapticLevel] || 10) }
+export function isQuiet() {
+  if (p.dnd) return true
+  if (!p.quiet) return false
+  const t = (x) => { const [h, m] = x.split(':').map(Number); return h * 60 + m }
+  const n = new Date(), m = n.getHours() * 60 + n.getMinutes(), a = t(p.quietFrom), b = t(p.quietTo)
+  return a <= b ? m >= a && m < b : m >= a || m < b
+}

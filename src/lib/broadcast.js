@@ -1,6 +1,7 @@
 import { useSyncExternalStore } from 'react'
 import { supabase } from './supabase.js'
-import { getPrefs } from './prefs.js'
+import { getPrefs, isQuiet } from './prefs.js'
+import { beep } from './device.js'
 const KEY = 'sk-read'
 const loadRead = () => { try { return JSON.parse(localStorage.getItem(KEY) || '[]') } catch (e) { return [] } }
 let s = { items: [], read: loadRead(), banner: null, sheet: null }
@@ -17,7 +18,8 @@ async function pushLocal(i) {
 let timer, started = false
 export const unreadOf = (st) => st.items.filter((i) => !st.read.includes(i.id))
 function showBanner(item) {
-  if (!getPrefs().banner) return
+  if (!getPrefs().banner || isQuiet()) return
+  if (getPrefs().sound) beep()
   seen.add(item.id); clearTimeout(timer)
   set({ banner: item }); timer = setTimeout(() => set({ banner: null }), getPrefs().bannerMs)
 }
@@ -28,7 +30,7 @@ async function load() {
   for (const i of unreadOf(s)) {
     if (notified.has(i.id)) continue
     notified.add(i.id)
-    if (document.visibilityState === 'hidden' && getPrefs().notify && 'Notification' in window && Notification.permission === 'granted') pushLocal(i)
+    if (document.visibilityState === 'hidden' && getPrefs().notify && !isQuiet() && 'Notification' in window && Notification.permission === 'granted') pushLocal(i)
   }
   const next = unreadOf(s).find((i) => !seen.has(i.id))
   if (next && !s.sheet) showBanner(next)

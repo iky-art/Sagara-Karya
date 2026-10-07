@@ -5,6 +5,7 @@ import Promos from './Promos.jsx'
 import Vouchers from './Vouchers.jsx'
 import Broadcasts from './Broadcasts.jsx'
 import Subscribers from './Subscribers.jsx'
+import Releases from './Releases.jsx'
 
 const ST = { baru: 'Baru', menunggu_ortu: 'Menunggu verifikasi ortu', diproses: 'Diproses', selesai: 'Selesai', dibatalkan: 'Dibatalkan' }
 const tone = { baru: 'bg-sand text-accent', menunggu_ortu: 'bg-amber-100 text-amber-900', diproses: 'bg-sky-100 text-sky-900', selesai: 'bg-emerald-100 text-emerald-900', dibatalkan: 'bg-line text-muted' }
@@ -120,7 +121,7 @@ function Dashboard() {
 function Shell() {
   const [tab, setTab] = useState('pesanan')
   const t = (k, l) => <button onClick={() => setTab(k)} aria-pressed={tab === k} className={`btn ${tab === k ? 'btn-primary' : 'btn-ghost'}`}>{l}</button>
-  return (<><nav aria-label="Menu admin" className="wrap flex gap-2 overflow-x-auto pt-6">{t('pesanan', 'Pesanan')}{t('promo', 'Promo')}{t('voucher', 'Voucher')}{t('broadcast', 'Broadcast')}{t('pelanggan', 'Pelanggan')}<a href="/app" className="btn btn-ghost ml-auto whitespace-nowrap">Ke aplikasi</a></nav>{tab === 'pesanan' ? <Dashboard /> : tab === 'promo' ? <Promos /> : tab === 'voucher' ? <Vouchers /> : tab === 'pelanggan' ? <Subscribers /> : <Broadcasts />}</>)
+  return (<><nav aria-label="Menu admin" className="wrap flex gap-2 overflow-x-auto pt-6">{t('pesanan', 'Pesanan')}{t('promo', 'Promo')}{t('voucher', 'Voucher')}{t('broadcast', 'Broadcast')}{t('pelanggan', 'Pelanggan')}{t('rilis', 'Rilis')}<a href="/app" className="btn btn-ghost ml-auto whitespace-nowrap">Ke aplikasi</a></nav>{tab === 'pesanan' ? <Dashboard /> : tab === 'promo' ? <Promos /> : tab === 'voucher' ? <Vouchers /> : tab === 'pelanggan' ? <Subscribers /> : tab === 'rilis' ? <Releases /> : <Broadcasts />}</>)
 }
 
 export default function Admin() {

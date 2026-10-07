@@ -8,6 +8,9 @@ import { SOCIAL_PATHS } from '../components/SocialIcon.jsx'
 import SubscribeForm from '../components/SubscribeForm.jsx'
 import { priceFor, rupiah, usePromos } from '../lib/pricing.js'
 import { useClaimed, useVouchers, voucherLabel } from '../lib/vouchers.js'
+import { BUILD_ID } from '../lib/version.js'
+import { useVersion } from '../lib/release.js'
+import { usage } from '../lib/usage.js'
 import { markAllRead, openCenter, unreadOf, useBroadcasts } from '../lib/broadcast.js'
 import { install, useInstall } from '../lib/pwa.js'
 import { buzz, setPref, usePrefs } from '../lib/prefs.js'
@@ -54,6 +57,7 @@ function VoucherCard({ v, onOpen }) {
 
 export function Home({ go, openSub }) {
   const vs = useVouchers()
+  const pr = usePrefs()
   const [sel, setSel] = useState(null)
   const tiles = [['Paket & harga', I.box, () => go('paket')], ['Lacak pesanan', I.search, () => openSub('lacak')], ['Voucher', I.ticket, () => go('voucher')], ['Notifikasi', I.bell, openCenter]]
   return (
@@ -72,13 +76,13 @@ export function Home({ go, openSub }) {
           </button>
         ))}
       </div>
-      <section>
+      <section hidden={!pr.homeServices}>
         <h2 className="mb-2 px-2 text-sm font-semibold text-muted">Layanan</h2>
         <ul className="glass overflow-hidden rounded-3xl">
           {services.map(([t, d]) => <li key={t} className="border-t border-line p-4 first:border-0"><p className="font-bold">{t}</p><p className="text-sm text-muted">{d}</p></li>)}
         </ul>
       </section>
-      <section>
+      <section hidden={!pr.homeSocial}>
         <h2 className="mb-2 px-2 text-sm font-semibold text-muted">Ikuti akun resmi kami</h2>
         <div className="grid grid-cols-2 gap-3">
           {socials.map((s) => (
@@ -89,11 +93,11 @@ export function Home({ go, openSub }) {
           ))}
         </div>
       </section>
-      <section>
+      <section hidden={!pr.homeEmail}>
         <h2 className="mb-2 px-2 text-sm font-semibold text-muted">Kabar lewat email</h2>
         <div className="glass rounded-3xl p-5"><SubscribeForm /></div>
       </section>
-      {vs.length > 0 && (
+      {pr.homeVoucher && vs.length > 0 && (
         <section>
           <h2 className="mb-2 px-2 text-sm font-semibold text-muted">Voucher untukmu</h2>
           <div className="space-y-3">{vs.slice(0, 2).map((v) => <VoucherCard key={v.id} v={v} onOpen={setSel} />)}</div>
@@ -195,6 +199,7 @@ export function Seg({ caption, value, options, onChange }) {
 }
 
 export function InfoApp() {
+  const ver = useVersion()
   const [sw, setSw] = useState('...'), [store, setStore] = useState('...')
   useEffect(() => {
     navigator.serviceWorker?.getRegistration().then((r) => setSw(r ? 'Aktif' : 'Tidak aktif')).catch(() => setSw('Tidak tersedia'))
@@ -202,7 +207,7 @@ export function InfoApp() {
   }, [])
   const dm = ['fullscreen', 'standalone', 'minimal-ui', 'browser'].find((m) => window.matchMedia(`(display-mode: ${m})`).matches) || 'browser'
   const rows = [
-    ['Versi aplikasi', '1.0.0'], ['Mode tampil', dm], ['Layar penuh', document.fullscreenElement ? 'Aktif' : 'Tidak aktif'],
+    ['Versi aplikasi', ver], ['Build', BUILD_ID], ['Dibuka', `${usage().opens || 1} kali`], ['Pertama dipakai', usage().first ? new Date(usage().first).toLocaleDateString('id-ID', { dateStyle: 'long' }) : '-'], ['Mode tampil', dm], ['Layar penuh', document.fullscreenElement ? 'Aktif' : 'Tidak aktif'],
     ['Service worker', sw], ['Penyimpanan terpakai', store], ['Koneksi', navigator.onLine ? 'Online' : 'Offline'],
     ['Izin notifikasi', 'Notification' in window ? Notification.permission : 'tidak didukung'], ['Jaga layar menyala', wakeSupported() ? 'Didukung' : 'Tidak didukung'],
   ]

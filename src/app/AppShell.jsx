@@ -1,15 +1,19 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Logo from '../components/Logo.jsx'
 import Splash from '../components/Splash.jsx'
 import NotificationLayer from '../components/NotificationLayer.jsx'
 import ContactChooser from '../components/ContactChooser.jsx'
 import { openCenter, unreadOf, useBroadcasts } from '../lib/broadcast.js'
-import { buzz, usePrefs } from '../lib/prefs.js'
+import { buzz, getPrefs, usePrefs } from '../lib/prefs.js'
+import { toast } from '../lib/toast.js'
+import '../lib/usage.js'
 import { enterFull, setWake } from '../lib/device.js'
 import { isStandalone } from '../lib/pwa.js'
 import { Cara, Faq, Home, I, Ico, InfoApp, Lacak, Langganan, Paket, Profil, Voucher, VoucherKu } from './screens.jsx'
 import * as S from './settings.jsx'
 import Toaster from '../components/Toaster.jsx'
+import UpdatePrompt from '../components/UpdatePrompt.jsx'
+import { startUpdates } from '../lib/update.js'
 const TABS = [['home', 'Beranda', I.home], ['paket', 'Paket', I.box], ['voucher', 'Voucher', I.ticket], ['setelan', 'Setelan', I.sliders]]
 const TITLE = { home: 'Sagara Karya', paket: 'Paket', voucher: 'Voucher', setelan: 'Setelan' }
 const SUBS = { lacak: 'Lacak Pesanan', profil: 'Profil Saya', voucherku: 'Voucher Saya', faq: 'Pertanyaan Umum', cara: 'Cara Kerja', info: 'Info Aplikasi', langganan: 'Kabar Email', 'set-akun': 'Akun & Pesanan', 'set-notif': 'Notifikasi', 'set-tampilan': 'Tampilan', 'set-layar': 'Layar & Perangkat', 'set-data': 'Privasi & Data', 'set-bantuan': 'Bantuan', 'set-tentang': 'Tentang', tips: 'Tips Penggunaan', rilis: 'Catatan Rilis', kredit: 'Kredit' }
@@ -26,6 +30,19 @@ export default function AppShell() {
     return () => { window.removeEventListener('popstate', pop); window.removeEventListener('online', on); window.removeEventListener('offline', off) }
   }, [])
   useEffect(() => { window.scrollTo(0, 0) }, [tab, sub])
+  useEffect(() => { startUpdates() }, [])
+  const act = useRef(null)
+  act.current = () => { if (sub) back() }
+  useEffect(() => {
+    let x0 = null
+    const ts = (e) => { const x = e.touches[0].clientX; x0 = x < 28 ? x : null }
+    const te = (e) => { if (x0 == null) return; const dx = e.changedTouches[0].clientX - x0; x0 = null; if (dx > 90 && getPrefs().swipeBack) act.current() }
+    window.addEventListener('touchstart', ts, { passive: true }); window.addEventListener('touchend', te, { passive: true })
+    return () => { window.removeEventListener('touchstart', ts); window.removeEventListener('touchend', te) }
+  }, [])
+  useEffect(() => {
+    try { const v = sessionStorage.getItem('sk-updated'); if (v) { sessionStorage.removeItem('sk-updated'); toast(`Diperbarui ke versi ${v}`) } } catch (e) {}
+  }, [])
   useEffect(() => { setWake(pr.wake) }, [pr.wake])
   useEffect(() => {
     if (!pr.fullscreen || !isStandalone()) return
@@ -74,6 +91,7 @@ export default function AppShell() {
       <NotificationLayer />
       <ContactChooser />
       <Toaster />
+      <UpdatePrompt />
     </>
   )
 }
